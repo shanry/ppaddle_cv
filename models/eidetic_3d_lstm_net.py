@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from src.layers.rnn_cell import Eidetic3DLSTMCell as eidetic_lstm
+# from src.layers.rnn_cell import Eidetic3DLSTMCell as eidetic_lstm
 import tensorflow as tf
 
 
@@ -43,11 +43,12 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
       num_hidden_in = output_channels
     else:
       num_hidden_in = num_hidden[i - 1]
-    new_lstm = eidetic_lstm(
-        name='e3d' + str(i),
-        input_shape=[ims_width, window_length, ims_height, num_hidden_in],
-        output_channels=num_hidden[i],
-        kernel_shape=[2, 5, 5])
+    new_lstm = None
+    # new_lstm = eidetic_lstm(
+    #     name='e3d' + str(i),
+    #     input_shape=[ims_width, window_length, ims_height, num_hidden_in],
+    #     output_channels=num_hidden[i],
+    #     kernel_shape=[2, 5, 5])
     lstm_layer.append(new_lstm)
     zero_state = tf.zeros(
         [batch_size, window_length, ims_width, ims_height, num_hidden[i]])
