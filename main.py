@@ -243,8 +243,8 @@ def main():
 
     args = parser.parse_args()
 
-    setattr(args, 'train_data_paths', "E:/bai/kth_action")
-    setattr(args, 'valid_data_paths', "E:/bai/kth_action")
+    #setattr(args, 'train_data_paths', "E:/bai/kth_action")
+    #setattr(args, 'valid_data_paths', "E:/bai/kth_action")
     print(args)
 
     if args.mode is not None:
