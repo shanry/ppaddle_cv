@@ -230,7 +230,7 @@ def main():
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--dropout', default=0.5, type=float)
-    parser.add_argument('--num_hidden', default='64, 64, 64', type=str)
+    parser.add_argument('--num_hidden', default='64, 64, 64, 64', type=str)
     parser.add_argument('--seq_length', default=10, type=int)
     parser.add_argument('--input_length', default=10, type=int)
     parser.add_argument('--total_length', default=20, type=int)
