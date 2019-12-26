@@ -96,8 +96,8 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
                     c = cell[i][-1]
                 h_new, c_new = lstm_layer[i](
                     inputs, (h, c))
-                h[i].append(h_new)
-                c[i].append(c_new)
+                hidden[i].append(h_new)
+                cell[i].append(c_new)
 
             x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1][-1], num_filters=output_channels,
                                         filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
