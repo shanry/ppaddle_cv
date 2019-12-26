@@ -70,7 +70,7 @@ class Model(object):
 
         feeder = fluid.DataFeeder(feed_list=[self.x, self.real_input_flag], place=place)
         exe.run(self.startup_program)
-        res = exe.run(self.main_program, feed=feeder.feed([inputs, real_input_flag]),
+        gen_imgs, ave_loss = exe.run(self.main_program, feed=feeder.feed([inputs, real_input_flag]),
                       fetch_list=[self.gen_imgs, self.ave_loss])
 
     def test(self, inputs, real_input_flag, exe, place):
@@ -91,7 +91,7 @@ class Model(object):
 
         if self.configs.model_name in networks_map:
             func = networks_map[self.configs.model_name]
-            return [None, None]
-            # return func(images, real_input_flag, num_layers, num_hidden, self.configs)
+            # return [None, None]
+            return func(images, real_input_flag, num_layers, num_hidden, self.configs)
         else:
             raise ValueError('Name of network unknown %s' % self.configs.model_name)

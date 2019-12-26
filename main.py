@@ -55,12 +55,15 @@ def train(args, model):
         #########################################################
         ######### train part code to be impoletented ############
 
-        res_train = model.train(ims, real_input_flag, exe, place)
+        gen_imgs, ave_loss = model.train(ims, real_input_flag, exe, place)
 
         if itr%2000 == 0:
-            test(args, model)
-        if itr%20000 == 0:
-            model.save()
+            print("loss:{}".format(ave_loss))
+
+        # if itr%2000 == 0:
+        #     test(args, model)
+        # if itr%20000 == 0:
+        #     model.save()
 
         ##########################################################
         ##########################################################
@@ -217,7 +220,7 @@ def main():
     parser = argparse.ArgumentParser("please give appropriate arguments")
     parser.add_argument('--mode', default='train', type=str)
     parser.add_argument('--model_name', default='e3d_lstm', type=str)
-    parser.add_argument('--dataset_name', default='action', type=str)
+    parser.add_argument('--dataset_name', default='mnist', type=str)  #action
     parser.add_argument('--dir_test_result',default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
     parser.add_argument('--valid_data_paths', default=None, type=str)
@@ -233,7 +236,7 @@ def main():
     parser.add_argument('--total_length', default=20, type=int)
     parser.add_argument('--img_width', default=128, type=int)
     parser.add_argument('--img_height', default=128, type=int)
-    parser.add_argument('--patch_size', default=8, type=int)
+    parser.add_argument('--patch_size', default=4, type=int)
     parser.add_argument('--img_channel', default=1, type=int)
     parser.add_argument('--scheduled_sampling', default=True, type=bool)
     parser.add_argument('--sampling_stop_iter', default=100000, type=int)
@@ -243,8 +246,11 @@ def main():
 
     args = parser.parse_args()
 
-    #setattr(args, 'train_data_paths', "E:/bai/kth_action")
-    #setattr(args, 'valid_data_paths', "E:/bai/kth_action")
+    # setattr(args, 'train_data_paths', "../kth_action")
+    # setattr(args, 'valid_data_paths', "../bai/kth_action")
+    setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
+    setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
+
     print(args)
 
     if args.mode is not None:
