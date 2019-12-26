@@ -68,8 +68,6 @@ class Model(object):
 
     def train(self, inputs, real_input_flag, exe):
 
-        # feeder = fluid.DataFeeder(feed_list=[self.x, self.real_input_flag], place=place)
-        # exe.run(fluid.default_startup_program())
         gen_imgs, ave_loss = exe.run(feed={'x':inputs, 'real_input_flag':real_input_flag},
                       fetch_list=[self.gen_imgs, self.ave_loss])
         return gen_imgs, ave_loss

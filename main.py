@@ -42,7 +42,7 @@ def train(args, model):
 
     place = fluid.CUDAPlace(0) if args.use_cuda else fluid.CPUPlace()
     exe = fluid.Executor(place)
-    exe.run(model.startup_program)
+    exe.run(fluid.default_startup_program())
 
     for itr in range(1, args.max_iterations + 1):
         if train_input_handle.no_batch_left():
