@@ -46,7 +46,7 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
             filters=output_channels,
             kernel=[2, 5, 5])
         lstm_layer.append(new_lstm)
-        zero_state = np.zeros(
+        zero_state = fluid.layers.zeros(
             [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
         cell.append(zero_state)
         hidden.append(zero_state)
