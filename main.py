@@ -33,7 +33,7 @@ def train(args, model):
         args.dataset_name,
         args.train_data_paths,
         args.valid_data_paths,
-        args.batch_size * args.n_gpu,
+        args.batch_size,
         args.img_width,
         seq_length=args.total_length,
         is_training=True)
@@ -49,6 +49,7 @@ def train(args, model):
             train_input_handle.begin(do_shuffle=True)
         ims = train_input_handle.get_batch()
         ims = preprocess.reshape_patch(ims, args.patch_size)
+        print("ims.shape:{}".format(ims.shape))
 
         eta, real_input_flag = schedule_sampling(eta, itr, args)
 
@@ -233,7 +234,7 @@ def main():
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--dropout', default=0.5, type=float)
     parser.add_argument('--num_hidden', default='64, 64, 64, 64', type=str)
-    parser.add_argument('--seq_length', default=10, type=int)
+    parser.add_argument('--seq_length', default=5, type=int)
     parser.add_argument('--input_length', default=5, type=int)
     parser.add_argument('--total_length', default=10, type=int)
     parser.add_argument('--img_width', default=64, type=int)
