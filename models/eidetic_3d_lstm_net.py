@@ -90,17 +90,17 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
                                         filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
                                         padding='same', data_format='NDHWC')
             x_gen = fluid.layers.squeeze(x_gen, axes=[1])
-            print("x_gen.shape:{}".format(x_gen.shape))
+            # print("x_gen.shape:{}".format(x_gen.shape))
             gen_images.append(x_gen)
-        print("len(gen_images):{}".format(len(gen_images)))
-        gen_images = fluid.layers.stack(gen_images)
-        gen_images = fluid.layers.transpose(gen_images, [1, 0, 2, 3, 4])
-        print("gen_images.shape:{}".format(gen_images.shape))
-        print("images[:, 1:].shape:{}".format(images[:, 1:].shape))
-        loss = fluid.layers.mse_loss(gen_images, images[:, 1:])
-        loss += fluid.layers.reduce_mean(fluid.layers.abs(gen_images - images[:, 1:]))
+    print("len(gen_images):{}".format(len(gen_images)))
+    gen_images = fluid.layers.stack(gen_images)
+    gen_images = fluid.layers.transpose(gen_images, [1, 0, 2, 3, 4])
+    print("gen_images.shape:{}".format(gen_images.shape))
+    print("images[:, 1:].shape:{}".format(images[:, 1:].shape))
+    loss = fluid.layers.mse_loss(gen_images, images[:, 1:])
+    loss += fluid.layers.reduce_mean(fluid.layers.abs(gen_images - images[:, 1:]))
 
-        out_len = total_length - input_length
-        out_ims = gen_images[:, -out_len:]
+    out_len = total_length - input_length
+    out_ims = gen_images[:, -out_len:]
 
-        return [out_ims, loss]
+    return [out_ims, loss]
