@@ -40,16 +40,22 @@ def train(args, model):
 
     eta = args.sampling_start_value
 
+    optimizer = fluid.optimizer.SGD(learning_rate=0.05)
+    optimizer.minimize(model.ave_loss)
+
     place = fluid.CUDAPlace(0) if args.use_cuda else fluid.CPUPlace()
+    print("place:", place)
     exe = fluid.Executor(place)
-    exe.run(fluid.default_startup_program())
+    start_program = fluid.default_startup_program()
+    main_program = fluid.default_main_program()
+    exe.run(start_program)
 
     for itr in range(1, args.max_iterations + 1):
         if train_input_handle.no_batch_left():
             train_input_handle.begin(do_shuffle=True)
         ims = train_input_handle.get_batch()
         ims = preprocess.reshape_patch(ims, args.patch_size)
-        print("ims.shape:{}".format(ims.shape))
+        # print("ims.shape:{}".format(ims.shape))
 
         eta, real_input_flag = schedule_sampling(eta, itr, args)
 
@@ -57,10 +63,10 @@ def train(args, model):
         ######### train part code to be impoletented ############
 
 
-        gen_imgs, ave_loss = model.train(ims, real_input_flag, exe)
+        gen_imgs, ave_loss = model.train(ims, real_input_flag, exe, main_program)
 
         if itr%args.interval_print == 0:
-            print("loss:{}".format(ave_loss))
+            print(itr, "loss:{}".format(ave_loss))
 
         # if itr%2000 == 0:
         #     test(args, model)
@@ -233,7 +239,7 @@ def main():
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--dropout', default=0.5, type=float)
-    parser.add_argument('--num_hidden', default='64, 64, 64, 64', type=str)
+    parser.add_argument('--num_hidden', default='8,16', type=str)
     parser.add_argument('--seq_length', default=5, type=int)
     parser.add_argument('--input_length', default=10, type=int)
     parser.add_argument('--total_length', default=20, type=int)
@@ -253,6 +259,8 @@ def main():
     # setattr(args, 'valid_data_paths', "../bai/kth_action")
     setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
     setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
+
+    setattr(args, 'use_cuda', False)
 
     print(args)
 

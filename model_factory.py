@@ -66,9 +66,9 @@ class Model(object):
         # grads.append(tf.gradients(loss, all_params))
         # self.pred_seq.append(gen_ims)
 
-    def train(self, inputs, real_input_flag, exe):
+    def train(self, inputs, real_input_flag, exe, program):
 
-        gen_imgs, ave_loss = exe.run(feed={'x':inputs, 'real_input_flag':real_input_flag},
+        gen_imgs, ave_loss = exe.run(program=program, feed={'x':inputs, 'real_input_flag':real_input_flag},
                       fetch_list=[self.gen_imgs, self.ave_loss])
         return gen_imgs, ave_loss
 

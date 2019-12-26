@@ -42,10 +42,11 @@ class ConvLSTMCell():
         f = fluid.layers.sigmoid(f)
         c_temp = fluid.layers.tanh(c_temp)
 
-        print("f.shape{}".format(f.shape))
-        print("i.shape{}".format(i.shape))
-        print("c.shape{}".format(c.shape))
-        print("c_temp.shape{}".format(c_temp.shape))
+        # print("f.shape{}".format(f.shape))
+        # print("i.shape{}".format(i.shape))
+        # print("c.shape{}".format(c.shape))
+        # print("c_temp.shape{}".format(c_temp.shape))
+
         c = f*c + i*c_temp
 
         xhc_2 = fluid.layers.concat([x, h, c], axis=-1)
@@ -55,8 +56,8 @@ class ConvLSTMCell():
             o = fluid.layers.layer_norm(o)
             c = fluid.layers.layer_norm(c)
         o = fluid.layers.sigmoid(o)
-        print("o.shape{}".format(o.shape))
-        print("c.shape{}".format(o.shape))
+        # print("o.shape{}".format(o.shape))
+        # print("c.shape{}".format(o.shape))
         h = o*fluid.layers.tanh(c)
 
         return h, c

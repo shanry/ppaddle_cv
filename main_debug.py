@@ -5,7 +5,7 @@ from models.lstm_cell import  ConvLSTMCell
 
 batch_size = 16
 timesteps = 20
-shape = [30, 40, 50]
+shape = [3, 4, 5]
 kernel = [3, 3, 3]
 channels = 2
 filters = 8
@@ -16,12 +16,14 @@ labels = fluid.data(name='label', shape=[batch_size]+shape+[filters])
 
 # Add the ConvLSTM step.
 cell = ConvLSTMCell(shape, filters, kernel)
+cell_2 = ConvLSTMCell(shape, filters, kernel)
 # outputs, state = tf.nn.dynamic_rnn(cell, inputs, dtype=inputs.dtype)
 c0 = fluid.layers.zeros(shape=[batch_size]+shape+[filters], dtype='float32')
 h0 = fluid.layers.zeros(shape=[batch_size]+shape+[filters], dtype='float32')
 s0 = [h0, c0]
 h, c = cell(inputs, s0)
-# print(h.shape)
+h, c = cell_2(inputs, (h,c))
+print(h.shape)
 
 place = fluid.CPUPlace()
 exe = fluid.Executor(place)
