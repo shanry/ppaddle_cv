@@ -46,7 +46,8 @@ class Model(object):
         ])
         self.num_hidden = [int(x) for x in self.configs.num_hidden.split(',')]
         self.num_layers = len(self.num_hidden)
-
+        print('self.num_hidden:{}'.format(self.num_hidden))
+        print('self.num_layers:{}'.format(self.num_layers))
         self.startup_program = fluid.default_startup_program()
         self.main_program = fluid.default_main_program()
 
