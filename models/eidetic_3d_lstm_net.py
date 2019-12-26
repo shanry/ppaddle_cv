@@ -54,43 +54,43 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
         hidden.append(zero_state)
         c_history.append(None)
 
-        input_list = []
-        for time_step in range(window_length - 1):
-            input_list.append(
-                fluid.layers.zeros([batch_size, ims_height, ims_width, output_channels], dtype='float32'))
+    input_list = []
+    for time_step in range(window_length - 1):
+        input_list.append(
+            fluid.layers.zeros([batch_size, ims_height, ims_width, output_channels], dtype='float32'))
 
-        for time_step in range(total_length - 1):
-            # with tf.variable_scope('e3d-lstm', reuse=reuse):
-            if time_step < input_length:
-                input_frm = images[:, time_step]
-            else:
-                time_diff = time_step - input_length
-                input_frm = real_input_flag[:, time_diff] * images[:, time_step] \
-                            + (1 - real_input_flag[:, time_diff]) * x_gen  # pylint: disable=used-before-assignment
-            input_list.append(input_frm)
+    for time_step in range(total_length - 1):
+        # with tf.variable_scope('e3d-lstm', reuse=reuse):
+        if time_step < input_length:
+            input_frm = images[:, time_step]
+        else:
+            time_diff = time_step - input_length
+            input_frm = real_input_flag[:, time_diff] * images[:, time_step] \
+                        + (1 - real_input_flag[:, time_diff]) * x_gen  # pylint: disable=used-before-assignment
+        input_list.append(input_frm)
 
-            if time_step % (window_length - window_stride) == 0:
-                input_frm = fluid.layers.stack(input_list[time_step:])
-                input_frm = fluid.layers.transpose(input_frm, [1, 0, 2, 3, 4])
+        if time_step % (window_length - window_stride) == 0:
+            input_frm = fluid.layers.stack(input_list[time_step:])
+            input_frm = fluid.layers.transpose(input_frm, [1, 0, 2, 3, 4])
 
-                for i in range(num_layers):
-                    if time_step == 0:
-                        c_history[i] = cell[i]
-                    else:
-                        c_history[i] = fluid.layers.concat([c_history[i], cell[i]], 1)
-                    if i == 0:
-                        inputs = input_frm
-                    else:
-                        inputs = hidden[i - 1]
-                    hidden[i], state = lstm_layer[i](
-                        inputs, (hidden[i], cell[i]))
-                    hidden[i], cell[i] = state
+            for i in range(num_layers):
+                if time_step == 0:
+                    c_history[i] = cell[i]
+                else:
+                    c_history[i] = fluid.layers.concat([c_history[i], cell[i]], 1)
+                if i == 0:
+                    inputs = input_frm
+                else:
+                    inputs = hidden[i - 1]
+                hidden[i], state = lstm_layer[i](
+                    inputs, (hidden[i], cell[i]))
+                hidden[i], cell[i] = state
 
-                x_gen = fluid.layers.conv3d(hidden[num_layers - 1], output_channels,
-                                                [window_length, 1, 1], [window_length, 1, 1],
-                                                'same')
-                x_gen = fluid.layers.squeeze(x_gen)
-                gen_images.append(x_gen)
+            x_gen = fluid.layers.conv3d(hidden[num_layers - 1], output_channels,
+                                            [window_length, 1, 1], [window_length, 1, 1],
+                                            'same')
+            x_gen = fluid.layers.squeeze(x_gen)
+            gen_images.append(x_gen)
 
         gen_images = fluid.layers.stack(gen_images)
         gen_images = fluid.layers.transpose(gen_images, [1, 0, 2, 3, 4])

@@ -26,10 +26,10 @@ class ConvLSTMCell():
     def __call__(self, x, state):
         h, c = state
         xhc = fluid.layers.concat([x, h, c], axis=-1)
-        print("xhc.shape:{}".format(xhc.shape))
+        # print("xhc.shape:{}".format(xhc.shape))
         conv_xhc = fluid.layers.conv3d(xhc, num_filters=self._filters*2, filter_size=self._kernel,
                                        padding='same', data_format=self._data_format)
-        print("conv_xhc.shape:{}".format(conv_xhc))
+        # print("conv_xhc.shape:{}".format(conv_xhc))
         i, f = fluid.layers.split(conv_xhc, 2)
         xh = fluid.layers.concat([x, h], axis=-1)
         c_temp = fluid.layers.conv3d(xh, self._filters, self._kernel,
