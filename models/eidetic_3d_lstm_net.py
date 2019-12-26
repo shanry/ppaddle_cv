@@ -45,7 +45,7 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
         print("num_hidden_in:{}".format(num_hidden_in))
         new_lstm = conv_lstm(
             shape=[window_length, ims_height, ims_width, num_hidden_in],
-            filters=output_channels,
+            filters=num_hidden[i],
             kernel=[2, 5, 5])
         lstm_layer.append(new_lstm)
         zero_state = fluid.layers.zeros(
