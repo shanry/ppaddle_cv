@@ -43,7 +43,7 @@ def train(args, model):
     optimizer = fluid.optimizer.SGD(learning_rate=0.05)
     optimizer.minimize(model.ave_loss)
 
-    place = fluid.CUDAPlace(0) if args.use_cuda else fluid.CPUPlace()
+    place = fluid.CUDAPlace(0) if args.use_cuda==1 else fluid.CPUPlace()
     print("place:", place)
     exe = fluid.Executor(place)
     start_program = fluid.default_startup_program()
@@ -234,7 +234,7 @@ def main():
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
-    parser.add_argument('--use_cuda', default=True, type=bool)
+    parser.add_argument('--use_cuda', default=0, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
@@ -260,7 +260,6 @@ def main():
     setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
     setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
 
-    setattr(args, 'use_cuda', False)
 
     print(args)
 
