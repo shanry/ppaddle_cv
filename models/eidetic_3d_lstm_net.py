@@ -22,7 +22,7 @@ from models.lstm_cell import ConvLSTMCell as conv_lstm
 
 def rnn(images, real_input_flag, num_layers, num_hidden, configs):
     """Builds a RNN according to the config."""
-    gen_images, lstm_layer, cell, hidden, c_history = [], [], [], [], []
+    gen_images, lstm_layer, cell, hidden, c_history, hidden_0, cell_0 = [], [], [], [], [], [], []
     shape = list(images.shape)
     batch_size = shape[0]
     # seq_length = shape[1]
@@ -48,10 +48,14 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
             filters=num_hidden[i],
             kernel=[2, 5, 5])
         lstm_layer.append(new_lstm)
-        zero_state = fluid.layers.zeros(
+        zero_h = fluid.layers.zeros(
             [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
-        cell.append(zero_state)
-        hidden.append(zero_state)
+        zero_c = fluid.layers.zeros(
+            [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
+        hidden_0.append(zero_h)
+        cell_0.append(zero_c)
+        cell.append([])
+        hidden.append([])
         c_history.append(None)
 
     input_list = []
@@ -82,10 +86,20 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
                     inputs = input_frm
                 else:
                     inputs = hidden[i - 1]
-                hidden[i], cell[i] = lstm_layer[i](
-                    inputs, (hidden[i], cell[i]))
+                if i == 0:
+                    h = fluid.layers.zeros([batch_size, window_length, ims_width,
+                                            ims_height, num_hidden[i]], dtype='float32')
+                    c = fluid.layers.zeros([batch_size, window_length, ims_width,
+                                            ims_height, num_hidden[i]], dtype='float32')
+                else:
+                    h = hidden[i][-1]
+                    c = cell[i][-1]
+                h_new, c_new = lstm_layer[i](
+                    inputs, (h, c))
+                h[i].append(h_new)
+                c[i].append(c_new)
 
-            x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1], num_filters=output_channels,
+            x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1][-1], num_filters=output_channels,
                                         filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
                                         padding='same', data_format='NDHWC')
             x_gen = fluid.layers.squeeze(x_gen, axes=[1])
