@@ -183,7 +183,7 @@ def schedule_sampling(eta, itr, args):
     zeros = np.zeros(
         (args.batch_size, args.total_length - args.input_length - 1,
          args.img_width // args.patch_size, args.img_width // args.patch_size,
-         args.patch_size ** 2 * args.img_channel))
+         args.patch_size ** 2 * args.img_channel), dtype='float32')
     if not args.scheduled_sampling:
         return 0.0, zeros
 
@@ -196,10 +196,10 @@ def schedule_sampling(eta, itr, args):
     true_token = (random_flip < eta)
     ones = np.ones(
         (args.img_width // args.patch_size, args.img_width // args.patch_size,
-         args.patch_size ** 2 * args.img_channel))
+         args.patch_size ** 2 * args.img_channel), dtype='float32')
     zeros = np.zeros(
         (args.img_width // args.patch_size, args.img_width // args.patch_size,
-         args.patch_size ** 2 * args.img_channel))
+         args.patch_size ** 2 * args.img_channel), dtype='float32')
     real_input_flag = []
     for i in range(args.batch_size):
         for j in range(args.total_length - args.input_length - 1):
