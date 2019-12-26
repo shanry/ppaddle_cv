@@ -98,7 +98,7 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
     print("gen_images.shape:{}".format(gen_images.shape))
     print("images[:, 1:].shape:{}".format(images[:, 1:].shape))
     loss = fluid.layers.mse_loss(gen_images, images[:, 1:])
-    loss += fluid.layers.reduce_mean(fluid.layers.abs(gen_images - images[:, 1:]))
+    # loss += fluid.layers.reduce_mean(fluid.layers.abs(gen_images - images[:, 1:]))
 
     out_len = total_length - input_length
     out_ims = gen_images[:, -out_len:]
