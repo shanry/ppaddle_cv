@@ -57,8 +57,8 @@ class Model(object):
         self.gen_imgs = self.output_list[0]
         self.ave_loss = self.output_list[1]
         # self.test_program = self.main_program.clone(for_test=True)
-        self.optimizer = fluid.optimizer.Adam(learning_rate=configs.lr)
-        self.optimizer.minimize(self.ave_loss)
+        # self.optimizer = fluid.optimizer.Adam(learning_rate=configs.lr)
+        # self.optimizer.minimize(self.ave_loss)
 
         # loss_train.append(loss / self.configs.batch_size)
         # # gradients
