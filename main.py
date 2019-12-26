@@ -228,7 +228,7 @@ def main():
     parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--use_cuda', default=True, type=bool)
     parser.add_argument('--epoch', default=20, type=int)
-    parser.add_argument('--batch_size', default=8, type=int)
+    parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--dropout', default=0.5, type=float)
     parser.add_argument('--num_hidden', default='64, 64, 64, 64', type=str)
