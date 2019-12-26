@@ -55,7 +55,7 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
         input_list = []
         for time_step in range(window_length - 1):
             input_list.append(
-                fluid.layers.zeros([batch_size, ims_height, ims_width, output_channels]))
+                fluid.layers.zeros([batch_size, ims_height, ims_width, output_channels], dtype='float32'))
 
         for time_step in range(total_length - 1):
             # with tf.variable_scope('e3d-lstm', reuse=reuse):
