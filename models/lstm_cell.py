@@ -58,4 +58,4 @@ class ConvLSTMCell():
 
         h = o*fluid.layers.tanh(c)
 
-        return h, (h, c)
+        return h, c
