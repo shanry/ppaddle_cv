@@ -57,7 +57,7 @@ def train(args, model):
 
         gen_imgs, ave_loss = model.train(ims, real_input_flag, exe, place)
 
-        if itr%2000 == 0:
+        if itr%args.interval_print == 0:
             print("loss:{}".format(ave_loss))
 
         # if itr%2000 == 0:
@@ -225,6 +225,7 @@ def main():
     parser.add_argument('--train_data_paths', default=None, type=str)
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
+    parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--use_cuda', default=True, type=bool)
     parser.add_argument('--epoch', default=20, type=int)
     parser.add_argument('--batch_size', default=8, type=int)
