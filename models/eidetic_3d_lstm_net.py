@@ -86,10 +86,10 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
                     inputs, (hidden[i], cell[i]))
                 hidden[i], cell[i] = state
 
-            x_gen = fluid.layers.conv3d(hidden[num_layers - 1], output_channels,
-                                            [window_length, 1, 1], [window_length, 1, 1],
-                                            padding='same', data_format='NDHWC')
-            x_gen = fluid.layers.squeeze(x_gen, axes=1)
+            x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1], num_filters=output_channels,
+                                        filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
+                                        padding='same', data_format='NDHWC')
+            x_gen = fluid.layers.squeeze(x_gen, axes=[1])
             print("x_gen.shape:{}".format(x_gen.shape))
             gen_images.append(x_gen)
 
