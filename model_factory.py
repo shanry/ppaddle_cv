@@ -48,8 +48,8 @@ class Model(object):
         self.num_layers = len(self.num_hidden)
         print('self.num_hidden:{}'.format(self.num_hidden))
         print('self.num_layers:{}'.format(self.num_layers))
-        self.startup_program = fluid.default_startup_program()
-        self.main_program = fluid.default_main_program()
+        # self.startup_program = fluid.default_startup_program()
+        # self.main_program = fluid.default_main_program()
 
         self.output_list = self.construct_model(self.x, self.real_input_flag,
                                                 self.num_layers, self.num_hidden)
@@ -66,11 +66,11 @@ class Model(object):
         # grads.append(tf.gradients(loss, all_params))
         # self.pred_seq.append(gen_ims)
 
-    def train(self, inputs, real_input_flag, exe, place):
+    def train(self, inputs, real_input_flag, exe):
 
         # feeder = fluid.DataFeeder(feed_list=[self.x, self.real_input_flag], place=place)
-        exe.run(self.startup_program)
-        gen_imgs, ave_loss = exe.run(self.main_program, feed={'x':inputs, 'real_input_flag':real_input_flag},
+        # exe.run(fluid.default_startup_program())
+        gen_imgs, ave_loss = exe.run(feed={'x':inputs, 'real_input_flag':real_input_flag},
                       fetch_list=[self.gen_imgs, self.ave_loss])
         return gen_imgs, ave_loss
 

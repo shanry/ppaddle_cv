@@ -55,6 +55,7 @@ def train(args, model):
         #########################################################
         ######### train part code to be impoletented ############
 
+
         gen_imgs, ave_loss = model.train(ims, real_input_flag, exe, place)
 
         if itr%args.interval_print == 0:

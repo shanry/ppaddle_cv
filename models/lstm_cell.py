@@ -55,7 +55,8 @@ class ConvLSTMCell():
             o = fluid.layers.layer_norm(o)
             c = fluid.layers.layer_norm(c)
         o = fluid.layers.sigmoid(o)
-
+        print("o.shape{}".format(o.shape))
+        print("c.shape{}".format(o.shape))
         h = o*fluid.layers.tanh(c)
 
         return h, c
