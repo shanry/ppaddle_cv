@@ -103,4 +103,4 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
     out_len = total_length - input_length
     out_ims = gen_images[:, -out_len:]
 
-    return [out_ims, loss]
+    return out_ims, loss

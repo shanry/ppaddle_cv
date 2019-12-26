@@ -72,6 +72,7 @@ class Model(object):
         exe.run(self.startup_program)
         gen_imgs, ave_loss = exe.run(self.main_program, feed={'x':inputs, 'real_input_flag':real_input_flag},
                       fetch_list=[self.gen_imgs, self.ave_loss])
+        return gen_imgs, ave_loss
 
     def test(self, inputs, real_input_flag, exe, place):
 
