@@ -78,14 +78,14 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
             input_frm = fluid.layers.transpose(input_frm, [1, 0, 2, 3, 4])
 
             for i in range(num_layers):
-                if time_step == 0:
-                    c_history[i] = cell[i]
-                else:
-                    c_history[i] = fluid.layers.concat([c_history[i], cell[i]], 1)
+                # if time_step == 0:
+                #     c_history[i] = cell[i]
+                # else:
+                #     c_history[i] = fluid.layers.concat([c_history[i], cell[i]], 1)
                 if i == 0:
                     inputs = input_frm
                 else:
-                    inputs = hidden[i - 1]
+                    inputs = hidden[i - 1][-1]
                 if i == 0:
                     h = fluid.layers.zeros([batch_size, window_length, ims_width,
                                             ims_height, num_hidden[i]], dtype='float32')
