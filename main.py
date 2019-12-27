@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import shutil
 
 import cv2
 import numpy as np
@@ -87,6 +88,8 @@ def train_test(model, test_input_handle, clone_program,exe, args):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'test...')
     test_input_handle.begin(do_shuffle=False)
     res_path = os.path.join(args.gen_frm_dir, str(args.save_name))
+    if os.path.exists(res_path):
+        shutil.rmtree(res_path)
     os.mkdir(res_path)
     avg_mse = 0
     batch_id = 0
