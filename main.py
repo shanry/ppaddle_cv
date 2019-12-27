@@ -354,8 +354,13 @@ def main():
 
     # setattr(args, 'train_data_paths', "../kth_action")
     # setattr(args, 'valid_data_paths', "../bai/kth_action")
-    setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
-    setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
+    if args.dataset_name == 'mnist':
+        setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
+        setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
+    else:
+        setattr(args, 'train_data_paths', "../kth_action")
+        setattr(args, 'valid_data_paths', "../kth_action")
+
 
 
     print(args)
