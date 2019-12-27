@@ -316,7 +316,7 @@ def main():
     parser.add_argument('--mode', default='train', type=str)
     parser.add_argument('--model_name', default='e3d_lstm', type=str)
     parser.add_argument('--dataset_name', default='mnist', type=str)  #action
-    parser.add_argument('--gen_frm_dir', default='./gen_frm_dir', type=str)
+    parser.add_argument('--gen_frm_dir', default='./gen_frm', type=str)
     parser.add_argument('--save_name', default='save', type=str)
     parser.add_argument('--dir_test_result', default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
