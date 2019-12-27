@@ -111,7 +111,7 @@ def train_test(model, test_input_handle, clone_program,exe, args):
         img_gen = model.test(test_dat, real_input_flag_zero, clone_program, exe)
 
         # Concat outputs of different gpus along batch
-        img_gen = np.concatenate(img_gen)
+        # img_gen = np.concatenate(img_gen)
         img_gen = preprocess.reshape_patch_back(img_gen, args.patch_size)
         img_out = img_gen[:, -output_length:]
         target_out = test_ims[:, -output_length:]
@@ -323,7 +323,7 @@ def main():
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
-    parser.add_argument('--interval_test', default=1000, type=int)
+    parser.add_argument('--interval_test', default=10, type=int)
     parser.add_argument('--use_cuda', default=0, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
