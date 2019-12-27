@@ -101,7 +101,7 @@ def train_test(model, test_input_handle, clone_program,exe, args):
     real_input_flag_zero = np.zeros((args.batch_size, output_length - 1,
                                      args.img_height // args.patch_size,
                                      args.img_width // args.patch_size,
-                                     args.patch_size ** 2 * args.img_channel))
+                                     args.patch_size ** 2 * args.img_channel), dtype='float32')
 
     while not test_input_handle.no_batch_left():
         batch_id = batch_id + 1
