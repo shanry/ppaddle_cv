@@ -62,11 +62,14 @@ def train(args, model):
         #########################################################
         ######### train part code to be impoletented ############
 
-
         gen_imgs, ave_loss = model.train(ims, real_input_flag, exe, main_program)
 
         if itr%args.interval_print == 0:
             print(itr, "loss:{}".format(ave_loss))
+
+        clone_program = main_program.clone(for_test=True)
+        if itr%args.interval_test == 0:
+            train_test(model,test_input_handle, clone_program, exe, args)
 
         # if itr%2000 == 0:
         #     test(args, model)
@@ -77,6 +80,90 @@ def train(args, model):
         ##########################################################
 
         train_input_handle.next()
+
+
+def train_test(model, test_input_handle, clone_program,exe, args):
+    """Evaluates a model."""
+    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'test...')
+    test_input_handle.begin(do_shuffle=False)
+    res_path = os.path.join(args.gen_frm_dir, str(args.save_name))
+    os.mkdir(res_path)
+    avg_mse = 0
+    batch_id = 0
+    img_mse, ssim, psnr = [], [], []
+    output_length = args.total_length - args.input_length
+
+    for i in range(output_length):
+        img_mse.append(0)
+        ssim.append(0)
+        psnr.append(0)
+
+    real_input_flag_zero = np.zeros((args.batch_size, output_length - 1,
+                                     args.img_height // args.patch_size,
+                                     args.img_width // args.patch_size,
+                                     args.patch_size ** 2 * args.img_channel))
+
+    while not test_input_handle.no_batch_left():
+        batch_id = batch_id + 1
+        test_ims = test_input_handle.get_batch()
+        test_dat = preprocess.reshape_patch(test_ims, args.patch_size)
+        # test_dat = np.split(test_dat, args.n_gpu)
+        img_gen = model.test(test_dat, real_input_flag_zero, clone_program, exe)
+
+        # Concat outputs of different gpus along batch
+        img_gen = np.concatenate(img_gen)
+        img_gen = preprocess.reshape_patch_back(img_gen, args.patch_size)
+        img_out = img_gen[:, -output_length:]
+        target_out = test_ims[:, -output_length:]
+        # MSE per frame
+        for i in range(output_length):
+            x = target_out[:, i]
+            gx = img_out[:, i]
+            gx = np.maximum(gx, 0)
+            gx = np.minimum(gx, 1)
+            mse = np.square(x - gx).sum()
+            img_mse[i] += mse
+            avg_mse += mse
+            # for b in range(configs.batch_size):
+            #     ssim[i] += compare_ssim(x[b], gx[b], multichannel=True)
+            x = np.uint8(x * 255)
+            gx = np.uint8(gx * 255)
+            psnr[i] += batch_psnr(gx, x)
+
+        # save prediction examples
+        if batch_id <= args.num_save_samples:
+            path = os.path.join(res_path, str(batch_id))
+            os.mkdir(path)
+            for i in range(args.total_length):
+                if (i + 1) < 10:
+                    name = 'gt0' + str(i + 1) + '.png'
+                else:
+                    name = 'gt' + str(i + 1) + '.png'
+                file_name = os.path.join(path, name)
+                img_gt = np.uint8(test_ims[0, i] * 255)
+                cv2.imwrite(file_name, img_gt)
+            for i in range(output_length):
+                if (i + args.input_length + 1) < 10:
+                    name = 'pd0' + str(i + args.input_length + 1) + '.png'
+                else:
+                    name = 'pd' + str(i + args.input_length + 1) + '.png'
+                file_name = os.path.join(path, name)
+                img_pd = img_gen[0, i]
+                img_pd = np.maximum(img_pd, 0)
+                img_pd = np.minimum(img_pd, 1)
+                img_pd = np.uint8(img_pd * 255)
+                cv2.imwrite(file_name, img_pd)
+        test_input_handle.next()
+
+    avg_mse = avg_mse / (batch_id * args.batch_size * args.n_gpu)
+    print('mse per seq: ' + str(avg_mse))
+    for i in range(output_length):
+        print(img_mse[i] / (batch_id * args.batch_size * args.n_gpu))
+
+    psnr = np.asarray(psnr, dtype=np.float32) / batch_id
+    print('psnr per frame: ' + str(np.mean(psnr)))
+    for i in range(output_length):
+        print(psnr[i])
 
 
 def test(args, model):
@@ -229,11 +316,14 @@ def main():
     parser.add_argument('--mode', default='train', type=str)
     parser.add_argument('--model_name', default='e3d_lstm', type=str)
     parser.add_argument('--dataset_name', default='mnist', type=str)  #action
+    parser.add_argument('--gen_frm_dir', default='./gen_frm_dir', type=str)
+    parser.add_argument('--save_name', default='save_name', type=str)
     parser.add_argument('--dir_test_result',default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
+    parser.add_argument('--interval_test', default=1000, type=int)
     parser.add_argument('--use_cuda', default=0, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)

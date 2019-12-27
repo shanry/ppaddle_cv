@@ -72,9 +72,11 @@ class Model(object):
                       fetch_list=[self.gen_imgs, self.ave_loss])
         return gen_imgs, ave_loss
 
-    def test(self, inputs, real_input_flag, exe, place):
+    def test(self, inputs, real_input_flag, program_clone, exe):
 
-        pass
+        gen_imgs = exe.run(program=program_clone, feed={'x': inputs, 'real_input_flag': real_input_flag},
+                                     fetch_list=[self.gen_imgs])
+        return gen_imgs[0]
 
     def save(self, itr):
         pass
