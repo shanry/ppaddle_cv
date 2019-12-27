@@ -154,6 +154,8 @@ def train_test(model, test_input_handle, clone_program,exe, args):
                 img_pd = np.uint8(img_pd * 255)
                 cv2.imwrite(file_name, img_pd)
         test_input_handle.next()
+        if batch_id > args.max_iterations_test:
+            break
 
     avg_mse = avg_mse / (batch_id * args.batch_size * args.n_gpu)
     print('mse per seq: ' + str(avg_mse))
@@ -341,6 +343,8 @@ def main():
     parser.add_argument('--sampling_stop_iter', default=100000, type=int)
     parser.add_argument('--sampling_changing_rate', default=0.00001, type=float)
     parser.add_argument('--sampling_start_value', default=1.0, type=float)
+    parser.add_argument('--num_save_samples', default=100, type=int)
+    parser.add_argument('--max_iterations_test', default=200, type=int)
     parser.add_argument('--max_iterations', default=200000, type=int)
 
     args = parser.parse_args()
