@@ -41,7 +41,7 @@ def train(args, model):
 
     eta = args.sampling_start_value
 
-    optimizer = fluid.optimizer.SGD(learning_rate=0.05)
+    optimizer = fluid.optimizer.Adam(learning_rate=0.05)
     optimizer.minimize(model.ave_loss)
 
     place = fluid.CUDAPlace(0) if args.use_cuda==1 else fluid.CPUPlace()
@@ -320,6 +320,7 @@ def main():
     parser = argparse.ArgumentParser("please give appropriate arguments")
     parser.add_argument('--mode', default='train', type=str)
     parser.add_argument('--model_name', default='e3d_lstm', type=str)
+    parser.add_argument('--lstm', default='conv', type=str)
     parser.add_argument('--dataset_name', default='mnist', type=str)  #action
     parser.add_argument('--gen_frm_dir', default='./gen_frm', type=str)
     parser.add_argument('--save_name', default='save', type=str)
@@ -334,7 +335,7 @@ def main():
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--dropout', default=0.5, type=float)
-    parser.add_argument('--num_hidden', default='8,16', type=str)
+    parser.add_argument('--num_hidden', default='16,16', type=str)
     parser.add_argument('--seq_length', default=5, type=int)
     parser.add_argument('--input_length', default=10, type=int)
     parser.add_argument('--total_length', default=20, type=int)

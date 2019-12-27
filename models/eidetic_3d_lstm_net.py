@@ -18,6 +18,7 @@ import numpy as np
 import paddle.fluid as fluid
 
 from models.lstm_cell import ConvLSTMCell as conv_lstm
+from models.lstm_cell import EideticLSTMCell as eide_lstm
 
 
 def rnn(images, real_input_flag, num_layers, num_hidden, configs):
@@ -43,10 +44,16 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
         else:
             num_hidden_in = num_hidden[i - 1]
         print("num_hidden_in:{}".format(num_hidden_in))
-        new_lstm = conv_lstm(
-            shape=[window_length, ims_height, ims_width, num_hidden_in],
-            filters=num_hidden[i],
-            kernel=[2, 5, 5])
+        if configs.lstm == 'conv':
+            new_lstm = conv_lstm(
+                shape=[window_length, ims_height, ims_width, num_hidden_in],
+                filters=num_hidden[i],
+                kernel=[2, 5, 5])
+        else:
+            new_lstm = eide_lstm(
+                shape=[window_length, ims_height, ims_width, num_hidden_in],
+                filters=num_hidden[i],
+                kernel=[2, 5, 5])
         lstm_layer.append(new_lstm)
         zero_h = fluid.layers.zeros(
             [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
@@ -58,6 +65,8 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
         hidden.append([])
         c_history.append(None)
 
+    memory = fluid.layers.zeros(
+            [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
     input_list = []
     for time_step in range(window_length - 1):
         # input_list.append(
@@ -99,7 +108,15 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
                     # print('timestep:{}'.format(time_step))
                     h = hidden[i][-1]
                     c = cell[i][-1]
-                h_new, c_new = lstm_layer[i](inputs, (h, c))
+                if configs.lstm == 'conv':
+                    h_new, c_new = lstm_layer[i](inputs, (h, c))
+                else:
+                    if time_step == 0:
+                        history = [fluid.layers.zeros([batch_size, window_length, ims_width,
+                                            ims_height, num_hidden[i]], dtype='float32')]
+                        h_new, c_new, memory = lstm_layer[i](inputs, h, c, memory, history)
+                    else:
+                        h_new, c_new, memory = lstm_layer[i](inputs, h, c, memory, cell[i])
                 hidden[i].append(h_new)
                 cell[i].append(c_new)
 
