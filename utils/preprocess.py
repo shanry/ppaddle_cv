@@ -39,6 +39,7 @@ def reshape_patch(img_tensor, patch_size):
 
 def reshape_patch_back(patch_tensor, patch_size):
   """Reshape a 5D patch tensor back to a 5D image tensor."""
+  print("patch_tensor.shape:{}".format(patch_tensor.shape),patch_tensor.ndim)
   assert 5 == patch_tensor.ndim
   batch_size = np.shape(patch_tensor)[0]
   seq_length = np.shape(patch_tensor)[1]
