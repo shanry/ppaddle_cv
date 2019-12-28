@@ -41,7 +41,7 @@ def train(args, model):
 
     eta = args.sampling_start_value
 
-    optimizer = fluid.optimizer.Adam(learning_rate=0.05)
+    optimizer = fluid.optimizer.Adam(args.lr, 0.95, 0.995)
     optimizer.minimize(model.ave_loss)
 
     place = fluid.CUDAPlace(0) if args.use_cuda==1 else fluid.CPUPlace()
@@ -320,8 +320,8 @@ def main():
     parser = argparse.ArgumentParser("please give appropriate arguments")
     parser.add_argument('--mode', default='train', type=str)
     parser.add_argument('--model_name', default='e3d_lstm', type=str)
-    parser.add_argument('--lstm', default='conv', type=str)
-    parser.add_argument('--dataset_name', default='mnist', type=str)  #action
+    parser.add_argument('--lstm', default='ei', type=str)
+    parser.add_argument('--dataset_name', default='action', type=str)  #action
     parser.add_argument('--gen_frm_dir', default='./gen_frm', type=str)
     parser.add_argument('--save_name', default='save', type=str)
     parser.add_argument('--dir_test_result', default='test_result', type=str)
@@ -330,7 +330,7 @@ def main():
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--interval_test', default=10, type=int)
-    parser.add_argument('--use_cuda', default=0, type=int)
+    parser.add_argument('--use_cuda', default=1, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
@@ -341,14 +341,14 @@ def main():
     parser.add_argument('--total_length', default=20, type=int)
     parser.add_argument('--img_width', default=64, type=int)
     parser.add_argument('--img_height', default=64, type=int)
-    parser.add_argument('--patch_size', default=4, type=int)
+    parser.add_argument('--patch_size', default=8, type=int)
     parser.add_argument('--img_channel', default=1, type=int)
     parser.add_argument('--scheduled_sampling', default=True, type=bool)
     parser.add_argument('--sampling_stop_iter', default=100000, type=int)
     parser.add_argument('--sampling_changing_rate', default=0.00001, type=float)
     parser.add_argument('--sampling_start_value', default=1.0, type=float)
-    parser.add_argument('--num_save_samples', default=100, type=int)
-    parser.add_argument('--max_iterations_test', default=200, type=int)
+    parser.add_argument('--num_save_samples', default=200, type=int)
+    parser.add_argument('--max_iterations_test', default=500, type=int)
     parser.add_argument('--max_iterations', default=200000, type=int)
 
     args = parser.parse_args()
@@ -358,11 +358,13 @@ def main():
     if args.dataset_name == 'mnist':
         setattr(args, 'train_data_paths', "../moving_mnist_example/moving-mnist-train.npz")
         setattr(args, 'valid_data_paths', "../moving_mnist_example/moving-mnist-valid.npz")
+        args.img_width = 64
+        args.img_height = 64
     else:
         setattr(args, 'train_data_paths', "../kth_action")
         setattr(args, 'valid_data_paths', "../kth_action")
-
-
+        args.img_width = 128
+        args.img_height = 128
 
     print(args)
 
