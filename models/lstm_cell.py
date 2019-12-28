@@ -148,7 +148,7 @@ class EideticLSTMCell():
 
     def __call__(self, inputs, hidden, cell, global_memory, eidetic_cell):
 
-        print("this is EideticLSTMCell")
+        # print("this is EideticLSTMCell")
 
         # print("inputs.shape:{}".format(inputs.shape))
         # print("hidden.shape:{}".format(hidden.shape))
