@@ -141,7 +141,7 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
     loss_l2 = fluid.layers.square_error_cost(gen_images, images[:, 1:])
     loss = fluid.layers.sum(loss_l2)
     # loss = fluid.layers.mse_loss(gen_images, images[:, 1:])
-    loss_l1 = fluid.layers.reduce_sum(fluid.layers.abs(gen_images - images[:, 1:]))
+    loss_l1 = fluid.layers.sum(fluid.layers.abs(gen_images - images[:, 1:]))
     loss += loss_l1
     loss /= batch_size
     out_len = total_length - input_length
