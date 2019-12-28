@@ -329,7 +329,7 @@ def main():
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
-    parser.add_argument('--interval_test', default=10, type=int)
+    parser.add_argument('--interval_test', default=1000, type=int)
     parser.add_argument('--use_cuda', default=1, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
