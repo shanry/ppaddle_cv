@@ -148,12 +148,14 @@ class EideticLSTMCell():
 
     def __call__(self, inputs, hidden, cell, global_memory, eidetic_cell):
 
-        print("inputs.shape:{}".format(inputs.shape))
-        print("hidden.shape:{}".format(hidden.shape))
-        print("cell.shape:{}".format(cell.shape))
-        print("global_memory.shape:{}".format(global_memory.shape))
+        print("this is EideticLSTMCell")
 
-        print("******************************************")
+        # print("inputs.shape:{}".format(inputs.shape))
+        # print("hidden.shape:{}".format(hidden.shape))
+        # print("cell.shape:{}".format(cell.shape))
+        # print("global_memory.shape:{}".format(global_memory.shape))
+        #
+        # print("******************************************")
 
         # with tf.variable_scope(self._layer_name):
         new_hidden = fluid.layers.conv3d(hidden, 4 * self._filters,
@@ -172,8 +174,8 @@ class EideticLSTMCell():
         r_t = fluid.layers.sigmoid(r_x + r_h)
         g_t = fluid.layers.tanh(g_x + g_h)
 
-        print("new_hidden.shape:{}".format(new_hidden.shape))
-        print("new_inputs.shape:{}".format(new_inputs.shape))
+        # print("new_hidden.shape:{}".format(new_hidden.shape))
+        # print("new_inputs.shape:{}".format(new_inputs.shape))
 
         kv = fluid.layers.concat(eidetic_cell, axis=1)
         new_cell = cell + self._attn(r_t, kv, kv)
@@ -191,10 +193,10 @@ class EideticLSTMCell():
         temp_g_t = fluid.layers.tanh(temp_g_x + g_m)
         new_global_memory = temp_f_t * fluid.layers.tanh(m_m) + temp_i_t * temp_g_t
 
-        print("temp_i_t.shape:{}".format(temp_i_t.shape))
-        print("temp_f_t.shape:{}".format(temp_f_t.shape))
-        print("temp_g_t.shape:{}".format(temp_g_t.shape))
-        print("new_global_memory.shape:{}".format(new_global_memory.shape))
+        # print("temp_i_t.shape:{}".format(temp_i_t.shape))
+        # print("temp_f_t.shape:{}".format(temp_f_t.shape))
+        # print("temp_g_t.shape:{}".format(temp_g_t.shape))
+        # print("new_global_memory.shape:{}".format(new_global_memory.shape))
 
         o_c = fluid.layers.conv3d(new_cell, self._filters,
                                   self._kernel, padding='same', data_format=self._data_format)
@@ -203,12 +205,12 @@ class EideticLSTMCell():
 
         output_gate = fluid.layers.tanh(o_x + o_h + o_c + o_m)
 
-        print("new_cell.shape:{}".format(new_cell.shape))
+        # print("new_cell.shape:{}".format(new_cell.shape))
         memory = fluid.layers.concat([new_cell, new_global_memory], -1)
         memory = fluid.layers.conv3d(memory, self._filters, 1,
                                      padding='same', data_format=self._data_format)
 
         output = fluid.layers.tanh(memory) * fluid.layers.sigmoid(output_gate)
-        print("output.shape:{}".format(output.shape))
-        print("*****************************************")
+        # print("output.shape:{}".format(output.shape))
+        # print("*****************************************")
         return output, new_cell, global_memory
