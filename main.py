@@ -327,6 +327,7 @@ def main():
     parser.add_argument('--dir_test_result', default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
     parser.add_argument('--valid_data_paths', default=None, type=str)
+    parser.add_argument('--loss_l1', default='1', type=str)
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--interval_test', default=1000, type=int)

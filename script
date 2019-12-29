@@ -1,3 +1,4 @@
 #!/bin/bash
 python main.py --use_cuda 1 --num_hidden 64,64,64,64 --lstm ei --interval_test 2000 \
- --dataset_name action  --patch_size 8  --max_iterations_test 500
+ --dataset_name action  --patch_size 8  --max_iterations_test 500  --inberval_print 50 \
+ --loss_l1 0
