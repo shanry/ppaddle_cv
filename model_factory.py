@@ -78,8 +78,15 @@ class Model(object):
                                      fetch_list=[self.gen_imgs])
         return gen_imgs[0]
 
-    def save(self, itr):
-        pass
+    def save(self, itr, exe):
+        checkpoint_path = os.path.join(self.configs.save_dir, 'inference.model-' + str(itr))
+        fluid.io.save_inference_model(dirname=checkpoint_path, feeded_var_names=['x', 'real_input_flag'],
+                                      target_vars=[self.gen_ims], model_filename=None, params_filename=None,
+                                      executor=exe)
+        print('saved to ' + self.configs.save_dir)
+
+    # def save(self, itr):
+    #     pass
 
     def load(self, checkpoint_path):
         pass

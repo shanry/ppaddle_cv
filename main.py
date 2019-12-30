@@ -26,6 +26,8 @@ def batch_psnr(gen_frames, gt_frames):
   return np.mean(psnr)
 
 
+
+
 def train(args, model):
     if args.train_data_paths is None or args.valid_data_paths is None:
         raise ValueError("the data paths mush be given !!")
@@ -51,6 +53,7 @@ def train(args, model):
     main_program = fluid.default_main_program()
     exe.run(start_program)
 
+
     for itr in range(1, args.max_iterations + 1):
         if train_input_handle.no_batch_left():
             train_input_handle.begin(do_shuffle=True)
@@ -72,6 +75,10 @@ def train(args, model):
         if itr%args.interval_test == 0:
             train_test(model,test_input_handle, clone_program, exe, args)
 
+        if itr%args.interval_save == 0:
+            model.save(itr, exe)
+            # train_test(model,test_input_handle, clone_program, exe, args)
+
         # if itr%2000 == 0:
         #     test(args, model)
         # if itr%20000 == 0:
@@ -86,7 +93,7 @@ def train(args, model):
 def train_test(model, test_input_handle, clone_program,exe, args):
     """Evaluates a model."""
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'test...')
-    test_input_handle.begin(do_shuffle=False)
+    test_input_handle.begin(do_shuffle=True)
     res_path = os.path.join(args.gen_frm_dir, str(args.save_name))
     if os.path.exists(res_path):
         shutil.rmtree(res_path)
@@ -323,6 +330,7 @@ def main():
     parser.add_argument('--lstm', default='ei', type=str)
     parser.add_argument('--dataset_name', default='action', type=str)  #action
     parser.add_argument('--gen_frm_dir', default='./gen_frm', type=str)
+    parser.add_argument('--save_dir', default='./checkpoints', type=str)
     parser.add_argument('--save_name', default='save', type=str)
     parser.add_argument('--dir_test_result', default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
@@ -331,6 +339,7 @@ def main():
     parser.add_argument('--n_gpu', default=1, type=int)
     parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--interval_test', default=1000, type=int)
+    parser.add_argument('--interval_save', default=10000, type=int)
     parser.add_argument('--use_cuda', default=1, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
