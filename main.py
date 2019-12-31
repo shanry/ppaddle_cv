@@ -248,7 +248,7 @@ def infer(args):
                        fetch_list=fetch_targets)
         img_gen = imgs[0]
         # Concat outputs of different gpus along batch
-        img_gen = np.concatenate(img_gen)
+        # img_gen = np.concatenate(img_gen)
         img_gen = preprocess.reshape_patch_back(img_gen, args.patch_size)
         img_out = img_gen[:, -output_length:]
         target_out = test_ims[:, -output_length:]
