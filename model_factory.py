@@ -81,7 +81,7 @@ class Model(object):
     def save(self, itr, exe):
         checkpoint_path = os.path.join(self.configs.save_dir, 'inference.model-' + str(itr))
         fluid.io.save_inference_model(dirname=checkpoint_path, feeded_var_names=['x', 'real_input_flag'],
-                                      target_vars=[self.gen_ims], model_filename=None, params_filename=None,
+                                      target_vars=[self.gen_imgs], model_filename=None, params_filename=None,
                                       executor=exe)
         print('saved to ' + self.configs.save_dir)
 
