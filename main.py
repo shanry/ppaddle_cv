@@ -186,6 +186,7 @@ def infer(args):
         args.valid_data_paths,
         args.batch_size * args.n_gpu,
         args.img_width,
+        seq_length=args.total_length,
         is_training=False)
 
     #########################################################
@@ -403,8 +404,8 @@ def main():
     print(args)
 
     if args.mode is not None:
-        model = Model(args)
         if args.mode == 'train':
+            model = Model(args)
             train(args, model)
         if args.mode == 'infer':
             infer(args)
