@@ -407,9 +407,9 @@ def main():
         if args.mode == 'train':
             model = Model(args)
             train(args, model)
-        if args.mode == 'infer':
+        elif args.mode == 'infer':
             infer(args)
-        if args.mode == 'print':
+        elif args.mode == 'print':
             print_model_info()
         else:
             raise ValueError("the mode is not right!!")
