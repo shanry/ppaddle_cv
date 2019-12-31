@@ -213,7 +213,7 @@ def infer(args):
     real_input_flag_zero = np.zeros((args.batch_size, output_length - 1,
                                      args.img_width // args.patch_size,
                                      args.img_width // args.patch_size,
-                                     args.patch_size ** 2 * args.img_channel))
+                                     args.patch_size ** 2 * args.img_channel), dtype='float32')
 
     place = fluid.CUDAPlace(0) if args.use_cuda else fluid.CPUPlace()
     exe = fluid.Executor(place)
