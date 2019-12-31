@@ -53,7 +53,9 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
             new_lstm = eide_lstm(
                 shape=[window_length, ims_height, ims_width, num_hidden_in],
                 filters=num_hidden[i],
-                kernel=[2, 5, 5])
+                kernel=[2, 5, 5],
+                name='ed_lstm_{}'.format(i)
+            )
         lstm_layer.append(new_lstm)
         zero_h = fluid.layers.zeros(
             [batch_size, window_length, ims_width, ims_height, num_hidden[i]], dtype='float32')
@@ -122,7 +124,8 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
 
             x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1][-1], num_filters=output_channels,
                                         filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
-                                        padding='same', data_format='NDHWC')
+                                        padding='same', data_format='NDHWC', param_attr=fluid.param_attr.ParamAttr(
+                                             name="decoder" + "_conv3d" + "_x_gen"))
             x_gen = fluid.layers.squeeze(x_gen, axes=[1])
             # print("hidden[num_layers - 1][-1][:,1].shape:{}".format(hidden[num_layers - 1][-1][:,1].shape))
             # x_gen = hidden[num_layers - 1][-1][:,1]
