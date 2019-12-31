@@ -198,8 +198,8 @@ def infer(args):
     """Evaluates a model by inferring."""
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'test...')
     test_input_handle.begin(do_shuffle=False)
-    # res_path = os.path.join(args.gen_frm_dir, args.dir_test_result)
-    os.mkdir(args.dir_test_result)
+    if not os.path.exists(args.infer_result_dir):
+        os.mkdir(args.infer_result_dir)
     avg_mse = 0
     batch_id = 0
     img_mse, ssim, psnr = [], [], []
@@ -269,7 +269,7 @@ def infer(args):
 
         # save prediction examples
         if batch_id <= args.num_save_samples:
-            path = os.path.join(args.dir_test_result, str(batch_id))
+            path = os.path.join(args.infer_result_dir, str(batch_id))
             os.mkdir(path)
             for i in range(args.total_length):
                 if (i + 1) < 10:
@@ -357,7 +357,7 @@ def main():
     parser.add_argument('--save_dir', default='./checkpoints', type=str)
     parser.add_argument('--load_dir', default='./checkpoints/inference.model-1800')
     parser.add_argument('--save_name', default='save', type=str)
-    parser.add_argument('--dir_test_result', default='test_result', type=str)
+    parser.add_argument('--infer_result_dir', default='infer_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
     parser.add_argument('--valid_data_paths', default=None, type=str)
     parser.add_argument('--loss_l1', default='1', type=str)
