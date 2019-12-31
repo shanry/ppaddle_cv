@@ -26,8 +26,6 @@ def batch_psnr(gen_frames, gt_frames):
   return np.mean(psnr)
 
 
-
-
 def train(args, model):
     if args.train_data_paths is None or args.valid_data_paths is None:
         raise ValueError("the data paths mush be given !!")
@@ -178,7 +176,7 @@ def train_test(model, test_input_handle, clone_program,exe, args):
         print(psnr[i])
 
 
-def test(args, model):
+def infer(args):
     if args.train_data_paths is None or args.valid_data_paths is None:
         raise ValueError("the data paths mush be given !!")
     # load data
@@ -196,7 +194,7 @@ def test(args, model):
     ##########################################################
     ##########################################################
 
-    """Evaluates a model."""
+    """Evaluates a model by inferring."""
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'test...')
     test_input_handle.begin(do_shuffle=False)
     # res_path = os.path.join(args.gen_frm_dir, args.dir_test_result)
@@ -218,13 +216,36 @@ def test(args, model):
 
     place = fluid.CUDAPlace(0) if args.use_cuda else fluid.CPUPlace()
     exe = fluid.Executor(place)
+
+    # inference_scope = fluid.core.Scope()
+    # with fluid.scope_guard(inference_scope):
+        # Use fluid.io.load_inference_model to obtain the inference program desc,
+        # the feed_target_names (the names of variables that will be feeded
+        # data using feed operators), and the fetch_targets (variables that
+        # we want to obtain data from using fetch operators).
+    [inference_program, feed_target_names,
+     fetch_targets] = fluid.io.load_inference_model(
+        args.load_dir, exe, None, None)
+
+        # Construct feed as a dictionary of {feed_target_name: feed_target_data}
+        # and results will contain a list of data corresponding to fetch_targets.
+        # results = exe.run(
+        #     inference_program,
+        #     feed={feed_target_names[0]: tensor_img},
+        #     fetch_list=fetch_targets)
+        # lab = numpy.argsort(results)
+        # print("Inference result of image/infer_3.png is: %d" % lab[0][0][-1])
+
     while not test_input_handle.no_batch_left():
         batch_id = batch_id + 1
         test_ims = test_input_handle.get_batch()
         test_dat = preprocess.reshape_patch(test_ims, args.patch_size)
         #test_dat = np.split(test_dat, args.n_gpu)
-        img_gen = model.test(test_dat, real_input_flag_zero, exe, place)
-
+        # img_gen = .infer(test_dat, real_input_flag_zero, exe, place)
+        imgs = exe.run(inference_program, feed={feed_target_names[0]: test_dat,
+                                                feed_target_names[1]: real_input_flag_zero},
+                       fetch_list=fetch_targets)
+        img_gen = imgs[0]
         # Concat outputs of different gpus along batch
         img_gen = np.concatenate(img_gen)
         img_gen = preprocess.reshape_patch_back(img_gen, args.patch_size)
@@ -269,6 +290,8 @@ def test(args, model):
                 img_pd = np.uint8(img_pd * 255)
                 cv2.imwrite(file_name, img_pd)
         test_input_handle.next()
+        if batch_id > args.max_iterations_test:
+            break
 
     avg_mse = avg_mse / (batch_id * args.batch_size * args.n_gpu)
     print('mse per seq: ' + str(avg_mse))
@@ -331,6 +354,7 @@ def main():
     parser.add_argument('--dataset_name', default='action', type=str)  #action
     parser.add_argument('--gen_frm_dir', default='./gen_frm', type=str)
     parser.add_argument('--save_dir', default='./checkpoints', type=str)
+    parser.add_argument('--load_dir', default='./checkpoints/inference.model-1800')
     parser.add_argument('--save_name', default='save', type=str)
     parser.add_argument('--dir_test_result', default='test_result', type=str)
     parser.add_argument('--train_data_paths', default=None, type=str)
@@ -382,8 +406,8 @@ def main():
         model = Model(args)
         if args.mode == 'train':
             train(args, model)
-        if args.mode == 'test':
-            test(args)
+        if args.mode == 'infer':
+            infer(args)
         if args.mode == 'print':
             print_model_info()
         else:
