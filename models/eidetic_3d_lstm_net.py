@@ -125,7 +125,8 @@ def rnn(images, real_input_flag, num_layers, num_hidden, configs):
             x_gen = fluid.layers.conv3d(input=hidden[num_layers - 1][-1], num_filters=output_channels,
                                         filter_size=[window_length, 1, 1], stride=[window_length, 1, 1],
                                         padding='same', data_format='NDHWC', param_attr=fluid.param_attr.ParamAttr(
-                                             name="decoder" + "_conv3d" + "_x_gen"))
+                                             name="decoder" + "_conv3d" + "_x_gen"), bias_attr=fluid.param_attr.ParamAttr(
+                                             name="decoder" + "_conv3d" + "_x_gen_b"))
             x_gen = fluid.layers.squeeze(x_gen, axes=[1])
             # print("hidden[num_layers - 1][-1][:,1].shape:{}".format(hidden[num_layers - 1][-1][:,1].shape))
             # x_gen = hidden[num_layers - 1][-1][:,1]

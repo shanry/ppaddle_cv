@@ -365,7 +365,7 @@ def main():
     parser.add_argument('--interval_print', default=10, type=int)
     parser.add_argument('--interval_test', default=1000, type=int)
     parser.add_argument('--interval_save', default=10000, type=int)
-    parser.add_argument('--use_cuda', default=1, type=int)
+    parser.add_argument('--use_cuda', default=0, type=int)
     parser.add_argument('--epoch', default=10, type=int)
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--lr', default=0.001, type=float)

@@ -27,7 +27,7 @@ class ConvLSTMCell():
         h, c = state
         xhc = fluid.layers.concat([x, h, c], axis=-1)
         # print("xhc.shape:{}".format(xhc.shape))
-        conv_xhc = fluid.layers.conv3d(xhc, num_filters=self._filters*2, filter_size=self._kernel,
+        conv_xhc = fluid.layers.conv3d(xhc, num_filters=self._filters * 2, filter_size=self._kernel,
                                        padding='same', data_format=self._data_format)
         # print("conv_xhc.shape:{}".format(conv_xhc))
         i, f = fluid.layers.split(conv_xhc, 2)
@@ -47,7 +47,7 @@ class ConvLSTMCell():
         # print("c.shape{}".format(c.shape))
         # print("c_temp.shape{}".format(c_temp.shape))
 
-        c = f*c + i*c_temp
+        c = f * c + i * c_temp
 
         xhc_2 = fluid.layers.concat([x, h, c], axis=-1)
         o = fluid.layers.conv3d(xhc_2, self._filters, self._kernel,
@@ -58,7 +58,7 @@ class ConvLSTMCell():
         o = fluid.layers.sigmoid(o)
         # print("o.shape{}".format(o.shape))
         # print("c.shape{}".format(o.shape))
-        h = o*fluid.layers.tanh(c)
+        h = o * fluid.layers.tanh(c)
 
         return h, c
 
@@ -163,22 +163,28 @@ class EideticLSTMCell():
                                          self._kernel, padding='same',
                                          data_format=self._data_format,
                                          param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name+"_conv3d"+"_new_hidden")
+                                             name=self._name + "_conv3d" + "_new_hidden"),
+                                         bias_attr=fluid.param_attr.ParamAttr(
+                                             name=self._name + "_conv3d" + "_new_hidden_b")
                                          )
         if self._normalize:
             new_hidden = fluid.layers.layer_norm(new_hidden, param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name+"_layer_norm"+"_new_hidden"))
+                name=self._name + "_layer_norm" + "_new_hidden"), bias_attr=fluid.param_attr.ParamAttr(
+                name=self._name + "_layer_norm" + "_new_hidden_b"))
         i_h, g_h, r_h, o_h = fluid.layers.split(new_hidden, 4)
         new_inputs = fluid.layers.conv3d(inputs, 7 * self._filters, self._kernel,
                                          padding='same', data_format=self._data_format,
                                          param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name + "_conv3d" + "_new_inputs")
+                                             name=self._name + "_conv3d" + "_new_inputs"),
+                                         bias_attr=fluid.param_attr.ParamAttr(
+                                             name=self._name + "_conv3d" + "_new_inputs_b")
                                          )
         if self._normalize:
             new_inputs = fluid.layers.layer_norm(new_inputs, param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name+"_layer_norm"+"_new_inputs"))
+                name=self._name + "_layer_norm" + "_new_inputs"), bias_attr=fluid.param_attr.ParamAttr(
+                name=self._name + "_layer_norm" + "_new_inputs_b"))
         i_x, g_x, r_x, o_x, temp_i_x, temp_g_x, temp_f_x = fluid.layers.split(
-                new_inputs, 7)
+            new_inputs, 7)
 
         i_t = fluid.layers.sigmoid(i_x + i_h)
         r_t = fluid.layers.sigmoid(r_x + r_h)
@@ -190,21 +196,25 @@ class EideticLSTMCell():
         kv = fluid.layers.concat(eidetic_cell, axis=1)
         new_cell = cell + self._attn(r_t, kv, kv)
         new_cell = fluid.layers.layer_norm(new_cell, param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name+"_layer_norm"+"_new_cell")) + i_t * g_t
+            name=self._name + "_layer_norm" + "_new_cell"), bias_attr=fluid.param_attr.ParamAttr(
+            name=self._name + "_layer_norm" + "_new_cell_b")) + i_t * g_t
 
-        new_global_memory = fluid.layers.conv3d(global_memory, 4*self._filters,
-                                       self._kernel, padding='same', data_format=self._data_format,
+        new_global_memory = fluid.layers.conv3d(global_memory, 4 * self._filters,
+                                                self._kernel, padding='same', data_format=self._data_format,
                                                 param_attr=fluid.param_attr.ParamAttr(
-                                                    name=self._name + "_conv3d" + "_new_global_memory")
+                                                    name=self._name + "_conv3d" + "_new_global_memory"),
+                                                bias_attr=fluid.param_attr.ParamAttr(
+                                                    name=self._name + "_conv3d" + "_new_global_memory_b")
                                                 )
 
         if self._normalize:
             new_global_memory = fluid.layers.layer_norm(new_global_memory, param_attr=fluid.param_attr.ParamAttr(
-                                             name=self._name+"_layer_norm"+"_new_global_memory"))
+                name=self._name + "_layer_norm" + "_new_global_memory"), bias_attr=fluid.param_attr.ParamAttr(
+                name=self._name + "_layer_norm" + "_new_global_memory_b"))
             i_m, f_m, g_m, m_m = fluid.layers.split(new_global_memory, 4)
 
         temp_i_t = fluid.layers.sigmoid(temp_i_x + i_m)
-        temp_f_t = fluid.layers.sigmoid(temp_f_x + f_m + 1) # original: + self._forget_bias
+        temp_f_t = fluid.layers.sigmoid(temp_f_x + f_m)  # original: + self._forget_bias
         temp_g_t = fluid.layers.tanh(temp_g_x + g_m)
         new_global_memory = temp_f_t * fluid.layers.tanh(m_m) + temp_i_t * temp_g_t
 
@@ -216,12 +226,16 @@ class EideticLSTMCell():
         o_c = fluid.layers.conv3d(new_cell, self._filters,
                                   self._kernel, padding='same', data_format=self._data_format,
                                   param_attr=fluid.param_attr.ParamAttr(
-                                      name=self._name + "_conv3d" + "_o_c")
+                                      name=self._name + "_conv3d" + "_o_c"),
+                                  bias_attr=fluid.param_attr.ParamAttr(
+                                      name=self._name + "_conv3d" + "_o_c_b")
                                   )
         o_m = fluid.layers.conv3d(new_global_memory, self._filters, self._kernel,
                                   padding='same', data_format=self._data_format,
                                   param_attr=fluid.param_attr.ParamAttr(
-                                      name=self._name + "_conv3d" + "_o_m")
+                                      name=self._name + "_conv3d" + "_o_m"),
+                                  bias_attr=fluid.param_attr.ParamAttr(
+                                      name=self._name + "_conv3d" + "_o_m_b")
                                   )
 
         output_gate = fluid.layers.tanh(o_x + o_h + o_c + o_m)
@@ -231,7 +245,9 @@ class EideticLSTMCell():
         memory = fluid.layers.conv3d(memory, self._filters, 1,
                                      padding='same', data_format=self._data_format,
                                      param_attr=fluid.param_attr.ParamAttr(
-                                         name=self._name + "_conv3d" + "_memory")
+                                         name=self._name + "_conv3d" + "_memory"),
+                                     bias_attr=fluid.param_attr.ParamAttr(
+                                         name=self._name + "_conv3d" + "_memory_b")
                                      )
 
         output = fluid.layers.tanh(memory) * fluid.layers.sigmoid(output_gate)
